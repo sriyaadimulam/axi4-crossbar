@@ -11,7 +11,7 @@ wire decode_error;
 
 integer errors;
 
-// Instantiate DUT (Design Under Test)
+// Device Under Test
 address_decoder DUT (
 .addr         (addr),
 .s0_sel       (s0_sel),
@@ -19,24 +19,24 @@ address_decoder DUT (
 .decode_error (decode_error)
 );
 
-// Address decoder verification task
-task check_address;
+// Address checking task
+task check_addr;
 input [31:0] test_addr;
-input exp_s0;
-input exp_s1;
-input exp_error;
+input expected_s0;
+input expected_s1;
+input expected_error;
 
 begin
 addr = test_addr;
 #10;
-if ((s0_sel       !== exp_s0)		
-
-(decode_error !== exp_error)) begin
+if ((s0_sel !== expected_s0) ||
+    (s1_sel !== expected_s1) ||
+    (decode_error !== expected_error)) begin
 
 $display("FAIL: Address = %h", test_addr);
-$display("Expected: S0=%b S1=%b ERR=%b",
-exp_s0, exp_s1, exp_error);
-$display("Actual:   S0=%b S1=%b ERR=%b",
+$display("Expected: %b %b %b",
+expected_s0, expected_s1, expected_error);
+$display("Actual:   %b %b %b",
 s0_sel, s1_sel, decode_error);
 
 errors = errors + 1;
@@ -51,34 +51,34 @@ endtask
 initial begin
 
 errors = 0;
-addr   = 32'h00000000;
+addr = 32'h00000000;
 
-$display("----------------------------------");
-$display(" ADDRESS DECODER TEST STARTED");
-$display("----------------------------------");
+$display("================================");
+$display(" ADDRESS DECODER TEST START");
+$display("================================");
 
-// Slave 0 address range
-check_address(32'h00000000, 1'b1, 1'b0, 1'b0);
-check_address(32'h00001234, 1'b1, 1'b0, 1'b0);
-check_address(32'h0000FFFF, 1'b1, 1'b0, 1'b0);
+// Slave 0 tests
+check_addr(32'h00000000, 1'b1, 1'b0, 1'b0);
+check_addr(32'h00001234, 1'b1, 1'b0, 1'b0);
+check_addr(32'h0000FFFF, 1'b1, 1'b0, 1'b0);
 
-// Slave 1 address range
-check_address(32'h00010000, 1'b0, 1'b1, 1'b0);
-check_address(32'h0001ABCD, 1'b0, 1'b1, 1'b0);
-check_address(32'h0001FFFF, 1'b0, 1'b1, 1'b0);
+// Slave 1 tests
+check_addr(32'h00010000, 1'b0, 1'b1, 1'b0);
+check_addr(32'h0001ABCD, 1'b0, 1'b1, 1'b0);
+check_addr(32'h0001FFFF, 1'b0, 1'b1, 1'b0);
 
-// Unmapped addresses
-check_address(32'h00020000, 1'b0, 1'b0, 1'b1);
-check_address(32'hFFFF0000, 1'b0, 1'b0, 1'b1);
+// Unmapped address tests
+check_addr(32'h00020000, 1'b0, 1'b0, 1'b1);
+check_addr(32'hFFFF0000, 1'b0, 1'b0, 1'b1);
 
-$display("----------------------------------");
+$display("================================");
 
 if (errors == 0)
 $display("ALL TESTS PASSED!");
 else
 $display("TEST FAILED: %0d errors", errors);
 
-$display("----------------------------------");
+$display("================================");
 
 $finish;
 end
