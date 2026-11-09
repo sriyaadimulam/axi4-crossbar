@@ -35,7 +35,11 @@ module axi4_crossbar_b_router #(
     input wire s0_aw_accept,
     input wire s0_aw_owner,
     input wire s1_aw_accept,
-    input wire s1_aw_owner
+    input wire s1_aw_owner,
+
+    // Slave write-slot availability
+    output wire s0_write_slot_available,
+    output wire s1_write_slot_available
 );
 
     // Write response ownership registers
@@ -45,8 +49,12 @@ module axi4_crossbar_b_router #(
     reg s1_b_active;
     reg s1_b_owner;
 
+    // Each slave supports one outstanding write
+    assign s0_write_slot_available = ~s0_b_active;
+    assign s1_write_slot_available = ~s1_b_active;
+
     // ------------------------------------------------
-    // Slave 0 response routing
+    // Master 0 response routing
     // ------------------------------------------------
 
     assign m0_bid =
@@ -113,7 +121,6 @@ module axi4_crossbar_b_router #(
         end
         else begin
 
-            // Slave 0 response ownership
             if (s0_aw_accept) begin
                 s0_b_active <= 1'b1;
                 s0_b_owner  <= s0_aw_owner;
@@ -122,7 +129,6 @@ module axi4_crossbar_b_router #(
                 s0_b_active <= 1'b0;
             end
 
-            // Slave 1 response ownership
             if (s1_aw_accept) begin
                 s1_b_active <= 1'b1;
                 s1_b_owner  <= s1_aw_owner;
@@ -130,6 +136,7 @@ module axi4_crossbar_b_router #(
             else if (s1_b_active && s1_bvalid && s1_bready) begin
                 s1_b_active <= 1'b0;
             end
+
         end
     end
 
