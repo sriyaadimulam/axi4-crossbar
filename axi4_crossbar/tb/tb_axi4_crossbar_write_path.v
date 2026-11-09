@@ -1,4 +1,3 @@
-
 `timescale 1ns / 1ps
 
 module tb_axi4_crossbar_write_path;
@@ -144,6 +143,30 @@ module tb_axi4_crossbar_write_path;
     wire m0_aw_unmapped;
     wire m1_aw_unmapped;
 
+    // =================================================
+    // DECERR WRITE CHANNEL SIGNALS
+    // DECERR handler is modelled externally here.
+    // =================================================
+
+    // DECERR AW
+    wire [3:0] decerr_awid;
+    wire [7:0] decerr_awlen;
+    wire       decerr_awvalid;
+    reg        decerr_awready;
+
+    // DECERR W
+    wire [31:0] decerr_wdata;
+    wire [3:0]  decerr_wstrb;
+    wire        decerr_wlast;
+    wire        decerr_wvalid;
+    reg         decerr_wready;
+
+    // DECERR B
+    reg  [3:0] decerr_bid;
+    reg  [1:0] decerr_bresp;
+    reg        decerr_bvalid;
+    wire       decerr_bready;
+
     integer pass_count;
     integer fail_count;
 
@@ -219,6 +242,7 @@ module tb_axi4_crossbar_write_path;
         .s1_awregion(s1_awregion),
         .s1_awvalid(s1_awvalid),
         .s1_awready(s1_awready),
+
         // M0 W
         .m0_wdata(m0_wdata),
         .m0_wstrb(m0_wstrb),
@@ -290,9 +314,26 @@ module tb_axi4_crossbar_write_path;
         .s0_write_slot_available(s0_write_slot_available),
         .s1_write_slot_available(s1_write_slot_available),
 
-        // Unmapped
+        // Unmapped indications
         .m0_aw_unmapped(m0_aw_unmapped),
-        .m1_aw_unmapped(m1_aw_unmapped)
+        .m1_aw_unmapped(m1_aw_unmapped),
+
+        // DECERR write interface
+        .decerr_awid(decerr_awid),
+        .decerr_awlen(decerr_awlen),
+        .decerr_awvalid(decerr_awvalid),
+        .decerr_awready(decerr_awready),
+
+        .decerr_wdata(decerr_wdata),
+        .decerr_wstrb(decerr_wstrb),
+        .decerr_wlast(decerr_wlast),
+        .decerr_wvalid(decerr_wvalid),
+        .decerr_wready(decerr_wready),
+
+        .decerr_bid(decerr_bid),
+        .decerr_bresp(decerr_bresp),
+        .decerr_bvalid(decerr_bvalid),
+        .decerr_bready(decerr_bready)
     );
 
     // =================================================
@@ -307,10 +348,6 @@ module tb_axi4_crossbar_write_path;
     // =================================================
     // Simple master tracker model
     // =================================================
-
-    // Availability is updated at the active clock edge.
-    // The real shared master_tracker will be connected
-    // during top-level integration.
 
     always @(posedge aclk or negedge aresetn) begin
 
@@ -361,7 +398,7 @@ module tb_axi4_crossbar_write_path;
         end
     endtask
 
-    // =================================================
+        // =================================================
     // Main stimulus
     // =================================================
 
@@ -429,6 +466,13 @@ module tb_axi4_crossbar_write_path;
         s0_bvalid = 0;
         s1_bvalid = 0;
 
+        // DECERR interface initialization
+        decerr_awready = 1'b1;
+        decerr_wready  = 1'b1;
+        decerr_bid     = 4'b0000;
+        decerr_bresp   = 2'b11;
+        decerr_bvalid  = 1'b0;
+
         s0_wr_service_valid = 0;
         s0_wr_service_master = 0;
         s0_wr_epoch_clear = 0;
@@ -459,14 +503,12 @@ module tb_axi4_crossbar_write_path;
         check(s0_awvalid && s0_awaddr == 32'h00000020,
               "M0 address routed to S0");
 
-        // Check handshake BEFORE rising edge
         check(m0_aw_accept && m0_awready,
               "M0 AW handshake detected");
 
         @(posedge aclk);
         #1;
 
-        // Check registered state AFTER rising edge
         check(!m0_write_available &&
               !s0_write_slot_available,
               "M0 AW accepted and write slots updated");
@@ -533,7 +575,6 @@ module tb_axi4_crossbar_write_path;
               m0_bid == 4'h3,
               "M0 B response held under backpressure");
 
-        // Release backpressure
         @(negedge aclk);
         m0_bready = 1;
 
@@ -760,7 +801,6 @@ module tb_axi4_crossbar_write_path;
         check(s0_awvalid && s0_awid == 4'h4,
               "M0 AW payload remains stable during backpressure");
 
-        // Release slave backpressure
         @(negedge aclk);
         s0_awready = 1;
 
@@ -779,7 +819,7 @@ module tb_axi4_crossbar_write_path;
         @(negedge aclk);
         clear_master_requests();
 
-                // M0 sends W data to S0
+        // M0 sends W data to S0
         m0_wdata  = 32'hFACE0001;
         m0_wstrb  = 4'b1111;
         m0_wlast  = 1'b1;
@@ -846,7 +886,7 @@ module tb_axi4_crossbar_write_path;
         @(negedge aclk);
         clear_master_requests();
 
-                // M1 sends W data to S0
+        // M1 sends W data to S0
         m1_wdata  = 32'hFACE0002;
         m1_wstrb  = 4'b1111;
         m1_wlast  = 1'b1;
@@ -892,22 +932,201 @@ module tb_axi4_crossbar_write_path;
         s0_bvalid = 0;
         m1_bready = 0;
 
-        // =============================================
-        // TEST 5: Unmapped address detection
+                // =============================================
+        // TEST 5: M0 unmapped write -> DECERR
         // =============================================
 
-        m0_awaddr = 32'h00020000;
-        m0_awvalid = 1;
+        m0_awid    = 4'hA;
+        m0_awaddr  = 32'h00020000;
+        m0_awlen   = 8'd0;       // One W beat
+        m0_awvalid = 1'b1;
 
         #1;
 
         check(m0_aw_unmapped &&
               !s0_awvalid &&
               !s1_awvalid,
-              "Unmapped address detected without slave AW");
+              "M0 unmapped address detected; no slave AW issued");
+
+        check(decerr_awvalid &&
+              decerr_awid == 4'hA &&
+              decerr_awlen == 8'd0,
+              "M0 unmapped AW routed to DECERR handler");
+
+        check(m0_awready && m0_aw_accept,
+              "M0 DECERR AW handshake detected");
+
+        @(posedge aclk);
+        #1;
+
+        check(!m0_write_available,
+              "M0 tracker model marks DECERR write outstanding");
 
         @(negedge aclk);
-        clear_master_requests();
+        m0_awvalid = 1'b0;
+
+        // Send one W beat, initially with backpressure
+        m0_wdata  = 32'hDEAD000A;
+        m0_wstrb  = 4'b1111;
+        m0_wlast  = 1'b1;
+        m0_wvalid = 1'b1;
+        decerr_wready = 1'b0;
+
+        #1;
+
+        check(decerr_wvalid &&
+              decerr_wdata == 32'hDEAD000A &&
+              decerr_wstrb == 4'b1111 &&
+              decerr_wlast &&
+              !m0_wready,
+              "M0 DECERR W data held under backpressure");
+
+        @(negedge aclk);
+        decerr_wready = 1'b1;
+
+        #1;
+
+        check(decerr_wvalid && m0_wready,
+              "M0 DECERR W beat ready for handshake");
+
+        @(posedge aclk);
+        #1;
+
+        @(negedge aclk);
+        m0_wvalid = 1'b0;
+        m0_wlast  = 1'b0;
+
+        // Return DECERR B response, initially stalled
+        decerr_bid    = 4'hA;
+        decerr_bresp  = 2'b11;
+        decerr_bvalid = 1'b1;
+        m0_bready     = 1'b0;
+
+        #1;
+
+        check(m0_bvalid &&
+              m0_bid == 4'hA &&
+              m0_bresp == 2'b11 &&
+              !decerr_bready,
+              "M0 DECERR B response routed and held under backpressure");
+
+        @(negedge aclk);
+        m0_bready = 1'b1;
+
+        #1;
+
+        check(m0_bvalid &&
+              m0_bready &&
+              decerr_bready &&
+              m0_write_complete,
+              "M0 DECERR B response handshake detected");
+
+        @(posedge aclk);
+        #1;
+
+        check(m0_write_available,
+              "M0 DECERR write completed");
+
+        @(negedge aclk);
+        decerr_bvalid = 1'b0;
+        m0_bready = 1'b0;
+
+        // =============================================
+        // TEST 6: M1 unmapped two-beat write -> DECERR
+        // =============================================
+
+        m1_awid    = 4'hC;
+        m1_awaddr  = 32'h00020020;
+        m1_awlen   = 8'd1;       // Two W beats
+        m1_awvalid = 1'b1;
+
+        #1;
+
+        check(m1_aw_unmapped &&
+              !s0_awvalid &&
+              !s1_awvalid,
+              "M1 unmapped address detected");
+
+        check(decerr_awvalid &&
+              decerr_awid == 4'hC &&
+              decerr_awlen == 8'd1 &&
+              m1_awready,
+              "M1 two-beat DECERR AW accepted");
+
+        @(posedge aclk);
+        #1;
+
+        check(!m1_write_available,
+              "M1 tracker model marks DECERR write outstanding");
+
+        @(negedge aclk);
+        m1_awvalid = 1'b0;
+
+        // First W beat
+        m1_wdata  = 32'h1111AAAA;
+        m1_wstrb  = 4'b0011;
+        m1_wlast  = 1'b0;
+        m1_wvalid = 1'b1;
+
+        #1;
+
+        check(decerr_wvalid &&
+              decerr_wdata == 32'h1111AAAA &&
+              decerr_wstrb == 4'b0011 &&
+              !decerr_wlast &&
+              m1_wready,
+              "M1 DECERR first W beat routed correctly");
+
+        @(posedge aclk);
+        #1;
+
+        // Second/final W beat
+        @(negedge aclk);
+        m1_wdata  = 32'h2222BBBB;
+        m1_wstrb  = 4'b1100;
+        m1_wlast  = 1'b1;
+        m1_wvalid = 1'b1;
+
+        #1;
+
+        check(decerr_wvalid &&
+              decerr_wdata == 32'h2222BBBB &&
+              decerr_wstrb == 4'b1100 &&
+              decerr_wlast &&
+              m1_wready,
+              "M1 DECERR final W beat routed correctly");
+
+        @(posedge aclk);
+        #1;
+
+        @(negedge aclk);
+        m1_wvalid = 1'b0;
+        m1_wlast  = 1'b0;
+
+        // M1 DECERR B response
+        decerr_bid    = 4'hC;
+        decerr_bresp  = 2'b11;
+        decerr_bvalid = 1'b1;
+        m1_bready     = 1'b1;
+
+        #1;
+
+        check(m1_bvalid &&
+              m1_bid == 4'hC &&
+              m1_bresp == 2'b11 &&
+              decerr_bready &&
+              m1_write_complete,
+              "M1 DECERR B response routed correctly");
+
+        @(posedge aclk);
+        #1;
+
+        check(m1_write_available,
+              "M1 DECERR write completed");
+
+        @(negedge aclk);
+        decerr_bvalid = 1'b0;
+        m1_bready = 1'b0;
 
         // =============================================
         // SUMMARY

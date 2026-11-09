@@ -48,7 +48,7 @@ module axi4_crossbar_write_path #(
     input wire m1_awvalid,
     output wire m1_awready,
 
-        // ------------------------------------------------
+    // ------------------------------------------------
     // Master 0 W interface
     // ------------------------------------------------
     input wire [DATA_WIDTH-1:0] m0_wdata,
@@ -175,11 +175,30 @@ module axi4_crossbar_write_path #(
     output wire s1_write_slot_available,
 
     output wire m0_aw_unmapped,
-    output wire m1_aw_unmapped
+    output wire m1_aw_unmapped,
+
+    // ------------------------------------------------
+    // DECERR WRITE HANDLER INTERFACE
+    // ------------------------------------------------
+    output wire [ID_WIDTH-1:0] decerr_awid,
+    output wire [7:0] decerr_awlen,
+    output wire decerr_awvalid,
+    input wire decerr_awready,
+
+    output wire [DATA_WIDTH-1:0] decerr_wdata,
+    output wire [(DATA_WIDTH/8)-1:0] decerr_wstrb,
+    output wire decerr_wlast,
+    output wire decerr_wvalid,
+    input wire decerr_wready,
+
+    input wire [ID_WIDTH-1:0] decerr_bid,
+    input wire [1:0] decerr_bresp,
+    input wire decerr_bvalid,
+    output wire decerr_bready
 );
 
     // =================================================
-    // Internal arbitration signals
+    // INTERNAL ARBITRATION SIGNALS
     // =================================================
 
     wire [1:0] s0_wr_req;
@@ -198,14 +217,44 @@ module axi4_crossbar_write_path #(
     wire s1_wr_enable;
 
     // =================================================
-    // Slave write-slot availability
+    // DECERR INTERNAL SIGNALS
+    // =================================================
+
+    wire mapped_m0_awready;
+    wire mapped_m1_awready;
+
+    wire mapped_m0_wready;
+    wire mapped_m1_wready;
+
+    wire [ID_WIDTH-1:0] normal_m0_bid;
+    wire [1:0] normal_m0_bresp;
+    wire normal_m0_bvalid;
+    wire normal_m0_bready;
+
+    wire [ID_WIDTH-1:0] normal_m1_bid;
+    wire [1:0] normal_m1_bresp;
+    wire normal_m1_bvalid;
+    wire normal_m1_bready;
+
+    wire [1:0] decerr_wr_req;
+    wire [1:0] decerr_wr_grant;
+
+    wire decerr_wr_grant_accept;
+    wire decerr_wr_enable;
+    wire decerr_wr_aw_accept;
+
+    reg decerr_wr_owner_valid;
+    reg decerr_wr_owner;
+
+    // =================================================
+    // SLAVE WRITE-SLOT AVAILABILITY
     // =================================================
 
     assign s0_wr_enable = s0_write_slot_available;
     assign s1_wr_enable = s1_write_slot_available;
 
     // =================================================
-    // Master tracker event generation
+    // MASTER TRACKER EVENT GENERATION
     // =================================================
 
     assign m0_aw_accept = m0_awvalid && m0_awready;
@@ -215,7 +264,7 @@ module axi4_crossbar_write_path #(
     assign m1_write_complete = m1_bvalid && m1_bready;
 
     // =================================================
-    // Write arbitration bank
+    // WRITE ARBITRATION BANK
     // =================================================
 
     axi4_crossbar_write_arbiter_bank U_WRITE_ARBITER_BANK (
@@ -247,7 +296,7 @@ module axi4_crossbar_write_path #(
     );
 
     // =================================================
-    // AW address router
+    // AW ADDRESS ROUTER
     // =================================================
 
     axi4_crossbar_aw_router #(
@@ -270,7 +319,7 @@ module axi4_crossbar_write_path #(
         .m0_awqos(m0_awqos),
         .m0_awregion(m0_awregion),
         .m0_awvalid(m0_awvalid),
-        .m0_awready(m0_awready),
+        .m0_awready(mapped_m0_awready),
 
         // Master 1 AW
         .m1_awid(m1_awid),
@@ -284,7 +333,7 @@ module axi4_crossbar_write_path #(
         .m1_awqos(m1_awqos),
         .m1_awregion(m1_awregion),
         .m1_awvalid(m1_awvalid),
-        .m1_awready(m1_awready),
+        .m1_awready(mapped_m1_awready),
 
         // Slave 0 AW
         .s0_awid(s0_awid),
@@ -340,7 +389,94 @@ module axi4_crossbar_write_path #(
     );
 
     // =================================================
-    // B response router and ownership tracking
+    // DECERR WRITE ARBITRATION
+    // =================================================
+
+    assign decerr_wr_req[0] =
+        m0_aw_unmapped && m0_write_available;
+
+    assign decerr_wr_req[1] =
+        m1_aw_unmapped && m1_write_available;
+
+    // Do not depend on READY to assert VALID.
+    // The locked arbiter holds the selected grant
+    // until the handler accepts the AW transaction.
+    assign decerr_wr_enable = !decerr_wr_owner_valid;
+
+    arbitration_policy_unit_locked U_DECERR_WRITE_ARBITER (
+
+        .aclk(aclk),
+        .aresetn(aresetn),
+
+        .arb_policy(arb_policy),
+
+        .req(decerr_wr_req),
+        .arb_enable(decerr_wr_enable),
+
+        .grant_accept(decerr_wr_grant_accept),
+
+        // DECERR requests do not update normal
+        // memory-burst age service history.
+        .service_valid(1'b0),
+        .service_master(1'b0),
+        .epoch_clear(1'b0),
+
+        .grant(decerr_wr_grant)
+    );
+
+    assign decerr_awid =
+        decerr_wr_grant[0] ? m0_awid :
+        decerr_wr_grant[1] ? m1_awid :
+        {ID_WIDTH{1'b0}};
+
+    assign decerr_awlen =
+        decerr_wr_grant[0] ? m0_awlen :
+        decerr_wr_grant[1] ? m1_awlen :
+        8'd0;
+
+    assign decerr_awvalid = |decerr_wr_grant;
+
+    assign decerr_wr_grant_accept =
+        decerr_awvalid && decerr_awready;
+
+    assign decerr_wr_aw_accept = decerr_wr_grant_accept;
+
+    // Combine mapped and unmapped AWREADY.
+    assign m0_awready =
+        mapped_m0_awready ||
+        (decerr_wr_grant[0] && decerr_awready);
+
+    assign m1_awready =
+        mapped_m1_awready ||
+        (decerr_wr_grant[1] && decerr_awready);
+
+    // =================================================
+    // DECERR WRITE OWNERSHIP TRACKING
+    // =================================================
+
+    always @(posedge aclk or negedge aresetn) begin
+
+        if (!aresetn) begin
+            decerr_wr_owner_valid <= 1'b0;
+            decerr_wr_owner       <= 1'b0;
+        end
+
+        else begin
+
+            if (decerr_wr_aw_accept) begin
+                decerr_wr_owner_valid <= 1'b1;
+                decerr_wr_owner       <= decerr_wr_grant[1];
+            end
+
+            else if (decerr_bvalid && decerr_bready) begin
+                decerr_wr_owner_valid <= 1'b0;
+            end
+
+        end
+    end
+
+    // =================================================
+    // B RESPONSE ROUTER AND OWNERSHIP TRACKING
     // =================================================
 
     axi4_crossbar_b_router #(
@@ -350,17 +486,17 @@ module axi4_crossbar_write_path #(
         .aclk(aclk),
         .aresetn(aresetn),
 
-        // Master 0 B
-        .m0_bid(m0_bid),
-        .m0_bresp(m0_bresp),
-        .m0_bvalid(m0_bvalid),
-        .m0_bready(m0_bready),
+        // Master 0 normal B
+        .m0_bid(normal_m0_bid),
+        .m0_bresp(normal_m0_bresp),
+        .m0_bvalid(normal_m0_bvalid),
+        .m0_bready(normal_m0_bready),
 
-        // Master 1 B
-        .m1_bid(m1_bid),
-        .m1_bresp(m1_bresp),
-        .m1_bvalid(m1_bvalid),
-        .m1_bready(m1_bready),
+        // Master 1 normal B
+        .m1_bid(normal_m1_bid),
+        .m1_bresp(normal_m1_bresp),
+        .m1_bvalid(normal_m1_bvalid),
+        .m1_bready(normal_m1_bready),
 
         // Slave 0 B
         .s0_bid(s0_bid),
@@ -387,6 +523,50 @@ module axi4_crossbar_write_path #(
     );
 
     // =================================================
+    // NORMAL / DECERR WRITE RESPONSE MULTIPLEXER
+    // =================================================
+
+    // Master 0 response
+    assign m0_bid =
+        (decerr_wr_owner_valid && !decerr_wr_owner)
+        ? decerr_bid : normal_m0_bid;
+
+    assign m0_bresp =
+        (decerr_wr_owner_valid && !decerr_wr_owner)
+        ? decerr_bresp : normal_m0_bresp;
+
+    assign m0_bvalid =
+        (decerr_wr_owner_valid && !decerr_wr_owner)
+        ? decerr_bvalid : normal_m0_bvalid;
+
+    // Master 1 response
+    assign m1_bid =
+        (decerr_wr_owner_valid && decerr_wr_owner)
+        ? decerr_bid : normal_m1_bid;
+
+    assign m1_bresp =
+        (decerr_wr_owner_valid && decerr_wr_owner)
+        ? decerr_bresp : normal_m1_bresp;
+
+    assign m1_bvalid =
+        (decerr_wr_owner_valid && decerr_wr_owner)
+        ? decerr_bvalid : normal_m1_bvalid;
+
+    // Normal B router READY
+    assign normal_m0_bready =
+        m0_bready &&
+        !(decerr_wr_owner_valid && !decerr_wr_owner);
+
+    assign normal_m1_bready =
+        m1_bready &&
+        !(decerr_wr_owner_valid && decerr_wr_owner);
+
+    // DECERR handler READY
+    assign decerr_bready =
+        decerr_wr_owner_valid &&
+        (decerr_wr_owner ? m1_bready : m0_bready);
+
+    // =================================================
     // W DATA ROUTER AND OWNERSHIP TRACKING
     // =================================================
 
@@ -402,14 +582,14 @@ module axi4_crossbar_write_path #(
         .m0_wstrb(m0_wstrb),
         .m0_wlast(m0_wlast),
         .m0_wvalid(m0_wvalid),
-        .m0_wready(m0_wready),
+        .m0_wready(mapped_m0_wready),
 
         // Master 1 W
         .m1_wdata(m1_wdata),
         .m1_wstrb(m1_wstrb),
         .m1_wlast(m1_wlast),
         .m1_wvalid(m1_wvalid),
-        .m1_wready(m1_wready),
+        .m1_wready(mapped_m1_wready),
 
         // Slave 0 W
         .s0_wdata(s0_wdata),
@@ -432,5 +612,31 @@ module axi4_crossbar_write_path #(
         .s1_aw_accept(s1_wr_grant_accept),
         .s1_aw_owner(s1_aw_owner)
     );
-    
+
+    // =================================================
+    // DECERR WRITE DATA ROUTING
+    // =================================================
+
+    assign decerr_wdata =
+        decerr_wr_owner ? m1_wdata : m0_wdata;
+
+    assign decerr_wstrb =
+        decerr_wr_owner ? m1_wstrb : m0_wstrb;
+
+    assign decerr_wlast =
+        decerr_wr_owner ? m1_wlast : m0_wlast;
+
+    assign decerr_wvalid =
+        decerr_wr_owner_valid &&
+        (decerr_wr_owner ? m1_wvalid : m0_wvalid);
+
+    // Return WREADY only to the selected destination.
+    assign m0_wready =
+        (decerr_wr_owner_valid && !decerr_wr_owner)
+        ? decerr_wready : mapped_m0_wready;
+
+    assign m1_wready =
+        (decerr_wr_owner_valid && decerr_wr_owner)
+        ? decerr_wready : mapped_m1_wready;
+
 endmodule
