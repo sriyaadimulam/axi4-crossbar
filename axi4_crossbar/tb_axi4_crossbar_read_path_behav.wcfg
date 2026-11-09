@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_axi4_crossbar_read_path_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_axi4_crossbar_read_path" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
+      <ZoomEndTime time="53.191490 us"></ZoomEndTime>
+      <Cursor1Time time="100.000000 us"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="77"></NameColumnWidth>
+      <ValueColumnWidth column_width="74"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="115" />
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/aclk" type="logic">
+      <obj_property name="ElementShortName">aclk</obj_property>
+      <obj_property name="ObjectShortName">aclk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/aresetn" type="logic">
+      <obj_property name="ElementShortName">aresetn</obj_property>
+      <obj_property name="ObjectShortName">aresetn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/arb_policy" type="array">
+      <obj_property name="ElementShortName">arb_policy[1:0]</obj_property>
+      <obj_property name="ObjectShortName">arb_policy[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_arid" type="array">
+      <obj_property name="ElementShortName">m0_arid[3:0]</obj_property>
+      <obj_property name="ObjectShortName">m0_arid[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_araddr" type="array">
+      <obj_property name="ElementShortName">m0_araddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">m0_araddr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_arlen" type="array">
+      <obj_property name="ElementShortName">m0_arlen[7:0]</obj_property>
+      <obj_property name="ObjectShortName">m0_arlen[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_arsize" type="array">
+      <obj_property name="ElementShortName">m0_arsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">m0_arsize[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_arburst" type="array">
+      <obj_property name="ElementShortName">m0_arburst[1:0]</obj_property>
+      <obj_property name="ObjectShortName">m0_arburst[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_arlock" type="logic">
+      <obj_property name="ElementShortName">m0_arlock</obj_property>
+      <obj_property name="ObjectShortName">m0_arlock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_arcache" type="array">
+      <obj_property name="ElementShortName">m0_arcache[3:0]</obj_property>
+      <obj_property name="ObjectShortName">m0_arcache[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_arprot" type="array">
+      <obj_property name="ElementShortName">m0_arprot[2:0]</obj_property>
+      <obj_property name="ObjectShortName">m0_arprot[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_arqos" type="array">
+      <obj_property name="ElementShortName">m0_arqos[3:0]</obj_property>
+      <obj_property name="ObjectShortName">m0_arqos[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_arregion" type="array">
+      <obj_property name="ElementShortName">m0_arregion[3:0]</obj_property>
+      <obj_property name="ObjectShortName">m0_arregion[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_arvalid" type="logic">
+      <obj_property name="ElementShortName">m0_arvalid</obj_property>
+      <obj_property name="ObjectShortName">m0_arvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_arready" type="logic">
+      <obj_property name="ElementShortName">m0_arready</obj_property>
+      <obj_property name="ObjectShortName">m0_arready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_arid" type="array">
+      <obj_property name="ElementShortName">m1_arid[3:0]</obj_property>
+      <obj_property name="ObjectShortName">m1_arid[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_araddr" type="array">
+      <obj_property name="ElementShortName">m1_araddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">m1_araddr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_arlen" type="array">
+      <obj_property name="ElementShortName">m1_arlen[7:0]</obj_property>
+      <obj_property name="ObjectShortName">m1_arlen[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_arsize" type="array">
+      <obj_property name="ElementShortName">m1_arsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">m1_arsize[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_arburst" type="array">
+      <obj_property name="ElementShortName">m1_arburst[1:0]</obj_property>
+      <obj_property name="ObjectShortName">m1_arburst[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_arlock" type="logic">
+      <obj_property name="ElementShortName">m1_arlock</obj_property>
+      <obj_property name="ObjectShortName">m1_arlock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_arcache" type="array">
+      <obj_property name="ElementShortName">m1_arcache[3:0]</obj_property>
+      <obj_property name="ObjectShortName">m1_arcache[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_arprot" type="array">
+      <obj_property name="ElementShortName">m1_arprot[2:0]</obj_property>
+      <obj_property name="ObjectShortName">m1_arprot[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_arqos" type="array">
+      <obj_property name="ElementShortName">m1_arqos[3:0]</obj_property>
+      <obj_property name="ObjectShortName">m1_arqos[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_arregion" type="array">
+      <obj_property name="ElementShortName">m1_arregion[3:0]</obj_property>
+      <obj_property name="ObjectShortName">m1_arregion[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_arvalid" type="logic">
+      <obj_property name="ElementShortName">m1_arvalid</obj_property>
+      <obj_property name="ObjectShortName">m1_arvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_arready" type="logic">
+      <obj_property name="ElementShortName">m1_arready</obj_property>
+      <obj_property name="ObjectShortName">m1_arready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_arid" type="array">
+      <obj_property name="ElementShortName">s0_arid[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_arid[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_araddr" type="array">
+      <obj_property name="ElementShortName">s0_araddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_araddr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_arlen" type="array">
+      <obj_property name="ElementShortName">s0_arlen[7:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_arlen[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_arsize" type="array">
+      <obj_property name="ElementShortName">s0_arsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_arsize[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_arburst" type="array">
+      <obj_property name="ElementShortName">s0_arburst[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_arburst[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_arlock" type="logic">
+      <obj_property name="ElementShortName">s0_arlock</obj_property>
+      <obj_property name="ObjectShortName">s0_arlock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_arcache" type="array">
+      <obj_property name="ElementShortName">s0_arcache[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_arcache[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_arprot" type="array">
+      <obj_property name="ElementShortName">s0_arprot[2:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_arprot[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_arqos" type="array">
+      <obj_property name="ElementShortName">s0_arqos[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_arqos[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_arregion" type="array">
+      <obj_property name="ElementShortName">s0_arregion[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_arregion[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_arvalid" type="logic">
+      <obj_property name="ElementShortName">s0_arvalid</obj_property>
+      <obj_property name="ObjectShortName">s0_arvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_arready" type="logic">
+      <obj_property name="ElementShortName">s0_arready</obj_property>
+      <obj_property name="ObjectShortName">s0_arready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_arid" type="array">
+      <obj_property name="ElementShortName">s1_arid[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s1_arid[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_araddr" type="array">
+      <obj_property name="ElementShortName">s1_araddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">s1_araddr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_arlen" type="array">
+      <obj_property name="ElementShortName">s1_arlen[7:0]</obj_property>
+      <obj_property name="ObjectShortName">s1_arlen[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_arsize" type="array">
+      <obj_property name="ElementShortName">s1_arsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">s1_arsize[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_arburst" type="array">
+      <obj_property name="ElementShortName">s1_arburst[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s1_arburst[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_arlock" type="logic">
+      <obj_property name="ElementShortName">s1_arlock</obj_property>
+      <obj_property name="ObjectShortName">s1_arlock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_arcache" type="array">
+      <obj_property name="ElementShortName">s1_arcache[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s1_arcache[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_arprot" type="array">
+      <obj_property name="ElementShortName">s1_arprot[2:0]</obj_property>
+      <obj_property name="ObjectShortName">s1_arprot[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_arqos" type="array">
+      <obj_property name="ElementShortName">s1_arqos[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s1_arqos[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_arregion" type="array">
+      <obj_property name="ElementShortName">s1_arregion[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s1_arregion[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_arvalid" type="logic">
+      <obj_property name="ElementShortName">s1_arvalid</obj_property>
+      <obj_property name="ObjectShortName">s1_arvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_arready" type="logic">
+      <obj_property name="ElementShortName">s1_arready</obj_property>
+      <obj_property name="ObjectShortName">s1_arready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_rid" type="array">
+      <obj_property name="ElementShortName">s0_rid[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_rid[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_rdata" type="array">
+      <obj_property name="ElementShortName">s0_rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_rdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_rresp" type="array">
+      <obj_property name="ElementShortName">s0_rresp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_rresp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_rlast" type="logic">
+      <obj_property name="ElementShortName">s0_rlast</obj_property>
+      <obj_property name="ObjectShortName">s0_rlast</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_rvalid" type="logic">
+      <obj_property name="ElementShortName">s0_rvalid</obj_property>
+      <obj_property name="ObjectShortName">s0_rvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_rready" type="logic">
+      <obj_property name="ElementShortName">s0_rready</obj_property>
+      <obj_property name="ObjectShortName">s0_rready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_rid" type="array">
+      <obj_property name="ElementShortName">s1_rid[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s1_rid[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_rdata" type="array">
+      <obj_property name="ElementShortName">s1_rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">s1_rdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_rresp" type="array">
+      <obj_property name="ElementShortName">s1_rresp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s1_rresp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_rlast" type="logic">
+      <obj_property name="ElementShortName">s1_rlast</obj_property>
+      <obj_property name="ObjectShortName">s1_rlast</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_rvalid" type="logic">
+      <obj_property name="ElementShortName">s1_rvalid</obj_property>
+      <obj_property name="ObjectShortName">s1_rvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_rready" type="logic">
+      <obj_property name="ElementShortName">s1_rready</obj_property>
+      <obj_property name="ObjectShortName">s1_rready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_rid" type="array">
+      <obj_property name="ElementShortName">m0_rid[3:0]</obj_property>
+      <obj_property name="ObjectShortName">m0_rid[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_rdata" type="array">
+      <obj_property name="ElementShortName">m0_rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">m0_rdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_rresp" type="array">
+      <obj_property name="ElementShortName">m0_rresp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">m0_rresp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_rlast" type="logic">
+      <obj_property name="ElementShortName">m0_rlast</obj_property>
+      <obj_property name="ObjectShortName">m0_rlast</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_rvalid" type="logic">
+      <obj_property name="ElementShortName">m0_rvalid</obj_property>
+      <obj_property name="ObjectShortName">m0_rvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_rready" type="logic">
+      <obj_property name="ElementShortName">m0_rready</obj_property>
+      <obj_property name="ObjectShortName">m0_rready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_rid" type="array">
+      <obj_property name="ElementShortName">m1_rid[3:0]</obj_property>
+      <obj_property name="ObjectShortName">m1_rid[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_rdata" type="array">
+      <obj_property name="ElementShortName">m1_rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">m1_rdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_rresp" type="array">
+      <obj_property name="ElementShortName">m1_rresp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">m1_rresp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_rlast" type="logic">
+      <obj_property name="ElementShortName">m1_rlast</obj_property>
+      <obj_property name="ObjectShortName">m1_rlast</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_rvalid" type="logic">
+      <obj_property name="ElementShortName">m1_rvalid</obj_property>
+      <obj_property name="ObjectShortName">m1_rvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_rready" type="logic">
+      <obj_property name="ElementShortName">m1_rready</obj_property>
+      <obj_property name="ObjectShortName">m1_rready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_read_available" type="logic">
+      <obj_property name="ElementShortName">m0_read_available</obj_property>
+      <obj_property name="ObjectShortName">m0_read_available</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_read_available" type="logic">
+      <obj_property name="ElementShortName">m1_read_available</obj_property>
+      <obj_property name="ObjectShortName">m1_read_available</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_ar_accept" type="logic">
+      <obj_property name="ElementShortName">m0_ar_accept</obj_property>
+      <obj_property name="ObjectShortName">m0_ar_accept</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_ar_accept" type="logic">
+      <obj_property name="ElementShortName">m1_ar_accept</obj_property>
+      <obj_property name="ObjectShortName">m1_ar_accept</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m0_read_complete" type="logic">
+      <obj_property name="ElementShortName">m0_read_complete</obj_property>
+      <obj_property name="ObjectShortName">m0_read_complete</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/m1_read_complete" type="logic">
+      <obj_property name="ElementShortName">m1_read_complete</obj_property>
+      <obj_property name="ObjectShortName">m1_read_complete</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_rd_service_valid" type="logic">
+      <obj_property name="ElementShortName">s0_rd_service_valid</obj_property>
+      <obj_property name="ObjectShortName">s0_rd_service_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_rd_service_master" type="logic">
+      <obj_property name="ElementShortName">s0_rd_service_master</obj_property>
+      <obj_property name="ObjectShortName">s0_rd_service_master</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_rd_epoch_clear" type="logic">
+      <obj_property name="ElementShortName">s0_rd_epoch_clear</obj_property>
+      <obj_property name="ObjectShortName">s0_rd_epoch_clear</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_rd_service_valid" type="logic">
+      <obj_property name="ElementShortName">s1_rd_service_valid</obj_property>
+      <obj_property name="ObjectShortName">s1_rd_service_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_rd_service_master" type="logic">
+      <obj_property name="ElementShortName">s1_rd_service_master</obj_property>
+      <obj_property name="ObjectShortName">s1_rd_service_master</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_rd_epoch_clear" type="logic">
+      <obj_property name="ElementShortName">s1_rd_epoch_clear</obj_property>
+      <obj_property name="ObjectShortName">s1_rd_epoch_clear</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s0_read_active" type="logic">
+      <obj_property name="ElementShortName">s0_read_active</obj_property>
+      <obj_property name="ObjectShortName">s0_read_active</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/s1_read_active" type="logic">
+      <obj_property name="ElementShortName">s1_read_active</obj_property>
+      <obj_property name="ObjectShortName">s1_read_active</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/decerr_arid" type="array">
+      <obj_property name="ElementShortName">decerr_arid[3:0]</obj_property>
+      <obj_property name="ObjectShortName">decerr_arid[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/decerr_arlen" type="array">
+      <obj_property name="ElementShortName">decerr_arlen[7:0]</obj_property>
+      <obj_property name="ObjectShortName">decerr_arlen[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/decerr_arvalid" type="logic">
+      <obj_property name="ElementShortName">decerr_arvalid</obj_property>
+      <obj_property name="ObjectShortName">decerr_arvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/decerr_arready" type="logic">
+      <obj_property name="ElementShortName">decerr_arready</obj_property>
+      <obj_property name="ObjectShortName">decerr_arready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/decerr_rid" type="array">
+      <obj_property name="ElementShortName">decerr_rid[3:0]</obj_property>
+      <obj_property name="ObjectShortName">decerr_rid[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/decerr_rdata" type="array">
+      <obj_property name="ElementShortName">decerr_rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">decerr_rdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/decerr_rresp" type="array">
+      <obj_property name="ElementShortName">decerr_rresp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">decerr_rresp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/decerr_rlast" type="logic">
+      <obj_property name="ElementShortName">decerr_rlast</obj_property>
+      <obj_property name="ObjectShortName">decerr_rlast</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/decerr_rvalid" type="logic">
+      <obj_property name="ElementShortName">decerr_rvalid</obj_property>
+      <obj_property name="ObjectShortName">decerr_rvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/decerr_rready" type="logic">
+      <obj_property name="ElementShortName">decerr_rready</obj_property>
+      <obj_property name="ObjectShortName">decerr_rready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/pass_count" type="array">
+      <obj_property name="ElementShortName">pass_count[31:0]</obj_property>
+      <obj_property name="ObjectShortName">pass_count[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/fail_count" type="array">
+      <obj_property name="ElementShortName">fail_count[31:0]</obj_property>
+      <obj_property name="ObjectShortName">fail_count[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/ADDR_WIDTH" type="array">
+      <obj_property name="ElementShortName">ADDR_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDR_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/ID_WIDTH" type="array">
+      <obj_property name="ElementShortName">ID_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/FIXED_PRIORITY" type="array">
+      <obj_property name="ElementShortName">FIXED_PRIORITY[1:0]</obj_property>
+      <obj_property name="ObjectShortName">FIXED_PRIORITY[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/DECERR" type="array">
+      <obj_property name="ElementShortName">DECERR[1:0]</obj_property>
+      <obj_property name="ObjectShortName">DECERR[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/DUT/m0_s0_sel" type="logic">
+      <obj_property name="ElementShortName">m0_s0_sel</obj_property>
+      <obj_property name="ObjectShortName">m0_s0_sel</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/DUT/m0_decode_error" type="logic">
+      <obj_property name="ElementShortName">m0_decode_error</obj_property>
+      <obj_property name="ObjectShortName">m0_decode_error</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/DUT/s0_rd_req" type="array">
+      <obj_property name="ElementShortName">s0_rd_req[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_rd_req[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/DUT/s0_rd_grant" type="array">
+      <obj_property name="ElementShortName">s0_rd_grant[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s0_rd_grant[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/DUT/s0_rd_grant_accept" type="logic">
+      <obj_property name="ElementShortName">s0_rd_grant_accept</obj_property>
+      <obj_property name="ObjectShortName">s0_rd_grant_accept</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/DUT/s0_rd_enable" type="logic">
+      <obj_property name="ElementShortName">s0_rd_enable</obj_property>
+      <obj_property name="ObjectShortName">s0_rd_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/DUT/mapped_m0_arready" type="logic">
+      <obj_property name="ElementShortName">mapped_m0_arready</obj_property>
+      <obj_property name="ObjectShortName">mapped_m0_arready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/DUT/s0_arvalid" type="logic">
+      <obj_property name="ElementShortName">s0_arvalid</obj_property>
+      <obj_property name="ObjectShortName">s0_arvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_axi4_crossbar_read_path/DUT/s0_arready" type="logic">
+      <obj_property name="ElementShortName">s0_arready</obj_property>
+      <obj_property name="ObjectShortName">s0_arready</obj_property>
+   </wvobject>
+</wave_config>
