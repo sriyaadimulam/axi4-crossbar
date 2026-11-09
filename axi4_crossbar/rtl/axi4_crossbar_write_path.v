@@ -3,6 +3,7 @@
 
 module axi4_crossbar_write_path #(
     parameter ADDR_WIDTH = 32,
+    parameter DATA_WIDTH = 32,
     parameter ID_WIDTH   = 4
 )(
     input wire aclk,
@@ -46,6 +47,42 @@ module axi4_crossbar_write_path #(
     input wire [3:0] m1_awregion,
     input wire m1_awvalid,
     output wire m1_awready,
+
+        // ------------------------------------------------
+    // Master 0 W interface
+    // ------------------------------------------------
+    input wire [DATA_WIDTH-1:0] m0_wdata,
+    input wire [(DATA_WIDTH/8)-1:0] m0_wstrb,
+    input wire m0_wlast,
+    input wire m0_wvalid,
+    output wire m0_wready,
+
+    // ------------------------------------------------
+    // Master 1 W interface
+    // ------------------------------------------------
+    input wire [DATA_WIDTH-1:0] m1_wdata,
+    input wire [(DATA_WIDTH/8)-1:0] m1_wstrb,
+    input wire m1_wlast,
+    input wire m1_wvalid,
+    output wire m1_wready,
+
+    // ------------------------------------------------
+    // Slave 0 W interface
+    // ------------------------------------------------
+    output wire [DATA_WIDTH-1:0] s0_wdata,
+    output wire [(DATA_WIDTH/8)-1:0] s0_wstrb,
+    output wire s0_wlast,
+    output wire s0_wvalid,
+    input wire s0_wready,
+
+    // ------------------------------------------------
+    // Slave 1 W interface
+    // ------------------------------------------------
+    output wire [DATA_WIDTH-1:0] s1_wdata,
+    output wire [(DATA_WIDTH/8)-1:0] s1_wstrb,
+    output wire s1_wlast,
+    output wire s1_wvalid,
+    input wire s1_wready,
 
     // ------------------------------------------------
     // Slave 0 AW interface
@@ -349,4 +386,51 @@ module axi4_crossbar_write_path #(
         .s1_write_slot_available(s1_write_slot_available)
     );
 
+    // =================================================
+    // W DATA ROUTER AND OWNERSHIP TRACKING
+    // =================================================
+
+    axi4_crossbar_w_router #(
+        .DATA_WIDTH(DATA_WIDTH)
+    ) U_W_ROUTER (
+
+        .aclk(aclk),
+        .aresetn(aresetn),
+
+        // Master 0 W
+        .m0_wdata(m0_wdata),
+        .m0_wstrb(m0_wstrb),
+        .m0_wlast(m0_wlast),
+        .m0_wvalid(m0_wvalid),
+        .m0_wready(m0_wready),
+
+        // Master 1 W
+        .m1_wdata(m1_wdata),
+        .m1_wstrb(m1_wstrb),
+        .m1_wlast(m1_wlast),
+        .m1_wvalid(m1_wvalid),
+        .m1_wready(m1_wready),
+
+        // Slave 0 W
+        .s0_wdata(s0_wdata),
+        .s0_wstrb(s0_wstrb),
+        .s0_wlast(s0_wlast),
+        .s0_wvalid(s0_wvalid),
+        .s0_wready(s0_wready),
+
+        // Slave 1 W
+        .s1_wdata(s1_wdata),
+        .s1_wstrb(s1_wstrb),
+        .s1_wlast(s1_wlast),
+        .s1_wvalid(s1_wvalid),
+        .s1_wready(s1_wready),
+
+        // AW handshake and ownership
+        .s0_aw_accept(s0_wr_grant_accept),
+        .s0_aw_owner(s0_aw_owner),
+
+        .s1_aw_accept(s1_wr_grant_accept),
+        .s1_aw_owner(s1_aw_owner)
+    );
+    
 endmodule

@@ -67,6 +67,38 @@ module tb_axi4_crossbar_write_path;
     wire s1_awvalid;
     reg s1_awready;
 
+    // =================================================
+    // W CHANNEL SIGNALS
+    // =================================================
+
+    // Master 0 W
+    reg [31:0] m0_wdata;
+    reg [3:0]  m0_wstrb;
+    reg        m0_wlast;
+    reg        m0_wvalid;
+    wire       m0_wready;
+
+    // Master 1 W
+    reg [31:0] m1_wdata;
+    reg [3:0]  m1_wstrb;
+    reg        m1_wlast;
+    reg        m1_wvalid;
+    wire       m1_wready;
+
+    // Slave 0 W
+    wire [31:0] s0_wdata;
+    wire [3:0]  s0_wstrb;
+    wire        s0_wlast;
+    wire        s0_wvalid;
+    reg         s0_wready;
+
+    // Slave 1 W
+    wire [31:0] s1_wdata;
+    wire [3:0]  s1_wstrb;
+    wire        s1_wlast;
+    wire        s1_wvalid;
+    reg         s1_wready;
+
     // Master B interfaces
     wire [3:0] m0_bid;
     wire [1:0] m0_bresp;
@@ -121,6 +153,7 @@ module tb_axi4_crossbar_write_path;
 
     axi4_crossbar_write_path #(
         .ADDR_WIDTH(32),
+        .DATA_WIDTH(32),
         .ID_WIDTH(4)
     ) DUT (
 
@@ -186,6 +219,33 @@ module tb_axi4_crossbar_write_path;
         .s1_awregion(s1_awregion),
         .s1_awvalid(s1_awvalid),
         .s1_awready(s1_awready),
+        // M0 W
+        .m0_wdata(m0_wdata),
+        .m0_wstrb(m0_wstrb),
+        .m0_wlast(m0_wlast),
+        .m0_wvalid(m0_wvalid),
+        .m0_wready(m0_wready),
+
+        // M1 W
+        .m1_wdata(m1_wdata),
+        .m1_wstrb(m1_wstrb),
+        .m1_wlast(m1_wlast),
+        .m1_wvalid(m1_wvalid),
+        .m1_wready(m1_wready),
+
+        // S0 W
+        .s0_wdata(s0_wdata),
+        .s0_wstrb(s0_wstrb),
+        .s0_wlast(s0_wlast),
+        .s0_wvalid(s0_wvalid),
+        .s0_wready(s0_wready),
+
+        // S1 W
+        .s1_wdata(s1_wdata),
+        .s1_wstrb(s1_wstrb),
+        .s1_wlast(s1_wlast),
+        .s1_wvalid(s1_wvalid),
+        .s1_wready(s1_wready),
 
         // M0 B
         .m0_bid(m0_bid),
@@ -345,6 +405,20 @@ module tb_axi4_crossbar_write_path;
         s0_awready = 1;
         s1_awready = 1;
 
+        // W channel initialization
+        m0_wdata  = 0;
+        m0_wstrb  = 0;
+        m0_wlast  = 0;
+        m0_wvalid = 0;
+
+        m1_wdata  = 0;
+        m1_wstrb  = 0;
+        m1_wlast  = 0;
+        m1_wvalid = 0;
+
+        s0_wready = 1;
+        s1_wready = 1;
+
         m0_bready = 0;
         m1_bready = 0;
 
@@ -399,6 +473,41 @@ module tb_axi4_crossbar_write_path;
 
         @(negedge aclk);
         clear_master_requests();
+
+        // M0 sends W data to S0
+        m0_wdata  = 32'hAABBCCDD;
+        m0_wstrb  = 4'b1111;
+        m0_wlast  = 1'b1;
+        m0_wvalid = 1'b1;
+
+        s0_wready = 1'b0;
+
+        #1;
+
+        check(s0_wvalid &&
+              s0_wdata == 32'hAABBCCDD &&
+              s0_wstrb == 4'b1111 &&
+              s0_wlast &&
+              !m0_wready,
+              "M0 W data routed to S0 and held under backpressure");
+
+        @(negedge aclk);
+        s0_wready = 1'b1;
+
+        #1;
+
+        check(s0_wvalid && m0_wready,
+              "M0 W handshake ready");
+
+        @(posedge aclk);
+        #1;
+
+        check(!s0_wvalid,
+              "S0 W ownership released after accepted WLAST");
+
+        @(negedge aclk);
+        m0_wvalid = 1'b0;
+        m0_wlast  = 1'b0;
 
         // M0 must not issue another write while outstanding
         m0_awaddr = 32'h00000040;
@@ -471,6 +580,31 @@ module tb_axi4_crossbar_write_path;
         @(negedge aclk);
         clear_master_requests();
 
+        // M1 sends W data to S1
+        m1_wdata  = 32'h12345678;
+        m1_wstrb  = 4'b1010;
+        m1_wlast  = 1'b1;
+        m1_wvalid = 1'b1;
+
+        #1;
+
+        check(s1_wvalid &&
+              s1_wdata == 32'h12345678 &&
+              s1_wstrb == 4'b1010 &&
+              s1_wlast &&
+              m1_wready,
+              "M1 W data routed correctly to S1");
+
+        @(posedge aclk);
+        #1;
+
+        check(!s1_wvalid,
+              "S1 W ownership released after accepted WLAST");
+
+        @(negedge aclk);
+        m1_wvalid = 1'b0;
+        m1_wlast  = 1'b0;
+
         // M1 B response
         s1_bid = 4'h7;
         s1_bresp = 2'b00;
@@ -528,6 +662,37 @@ module tb_axi4_crossbar_write_path;
 
         @(negedge aclk);
         clear_master_requests();
+
+        // Simultaneous W transfers
+        m0_wdata  = 32'hAAAA0001;
+        m0_wstrb  = 4'b1111;
+        m0_wlast  = 1'b1;
+        m0_wvalid = 1'b1;
+
+        m1_wdata  = 32'hBBBB0002;
+        m1_wstrb  = 4'b1100;
+        m1_wlast  = 1'b1;
+        m1_wvalid = 1'b1;
+
+        #1;
+
+        check(s0_wvalid && s1_wvalid &&
+              s0_wdata == 32'hAAAA0001 &&
+              s1_wdata == 32'hBBBB0002 &&
+              m0_wready && m1_wready,
+              "Simultaneous W transfers routed independently");
+
+        @(posedge aclk);
+        #1;
+
+        check(!s0_wvalid && !s1_wvalid,
+              "Both W ownership slots released after WLAST");
+
+        @(negedge aclk);
+        m0_wvalid = 1'b0;
+        m1_wvalid = 1'b0;
+        m0_wlast  = 1'b0;
+        m1_wlast  = 1'b0;
 
         // Simultaneous B responses
         s0_bid = 4'h1;
@@ -614,6 +779,29 @@ module tb_axi4_crossbar_write_path;
         @(negedge aclk);
         clear_master_requests();
 
+                // M0 sends W data to S0
+        m0_wdata  = 32'hFACE0001;
+        m0_wstrb  = 4'b1111;
+        m0_wlast  = 1'b1;
+        m0_wvalid = 1'b1;
+
+        #1;
+
+        check(s0_wvalid &&
+              s0_wdata == 32'hFACE0001 &&
+              m0_wready,
+              "M0 contention W data routed to S0");
+
+        @(posedge aclk);
+        #1;
+
+        check(!s0_wvalid,
+              "M0 contention W transaction completed");
+
+        @(negedge aclk);
+        m0_wvalid = 1'b0;
+        m0_wlast  = 1'b0;
+
         // Complete M0 B response
         s0_bid = 4'h4;
         s0_bresp = 2'b00;
@@ -657,6 +845,29 @@ module tb_axi4_crossbar_write_path;
 
         @(negedge aclk);
         clear_master_requests();
+
+                // M1 sends W data to S0
+        m1_wdata  = 32'hFACE0002;
+        m1_wstrb  = 4'b1111;
+        m1_wlast  = 1'b1;
+        m1_wvalid = 1'b1;
+
+        #1;
+
+        check(s0_wvalid &&
+              s0_wdata == 32'hFACE0002 &&
+              m1_wready,
+              "M1 contention W data routed to S0");
+
+        @(posedge aclk);
+        #1;
+
+        check(!s0_wvalid,
+              "M1 contention W transaction completed");
+
+        @(negedge aclk);
+        m1_wvalid = 1'b0;
+        m1_wlast  = 1'b0;
 
         // Complete M1 B response
         s0_bid = 4'h5;
