@@ -1,12 +1,11 @@
-
 `timescale 1ns / 1ps
 
 module tb_read_arbiter_performance;
 
-    // Experiment C configuration
-parameter M0_BURST_BEATS = 4;
-parameter M1_BURST_BEATS = 4;
-parameter TARGET_TXNS    = 20;
+    // Experiment B configuration
+    parameter M0_BURST_BEATS = 4;
+    parameter M1_BURST_BEATS = 16;
+    parameter TARGET_TXNS    = 20;
 
     reg aclk;
     reg aresetn;
@@ -86,7 +85,6 @@ parameter TARGET_TXNS    = 20;
         .s1_rd_epoch_clear(1'b0),
         .s1_rd_grant(s1_rd_grant)
     );
-
 
     // ------------------------------------------------
     // Run one arbitration policy
@@ -334,7 +332,6 @@ parameter TARGET_TXNS    = 20;
 
     endtask
 
-
     // ------------------------------------------------
     // Main experiment
     // ------------------------------------------------
@@ -363,7 +360,7 @@ parameter TARGET_TXNS    = 20;
 
         $display("");
         $display("========================================");
-        $display("EXPERIMENT C COMPLETED");
+        $display("EXPERIMENT B COMPLETED");
         $display("========================================");
 
         $finish;
