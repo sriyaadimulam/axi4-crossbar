@@ -1,4 +1,3 @@
-
 `timescale 1ns / 1ps
 
 module axi4_crossbar_read_path #(
@@ -18,9 +17,7 @@ module axi4_crossbar_read_path #(
     // 11: Reserved
     input wire [1:0] arb_policy,
 
-    // --------------------------------------------
     // Master 0 AR interface
-    // --------------------------------------------
     input wire [ID_WIDTH-1:0] m0_arid,
     input wire [ADDR_WIDTH-1:0] m0_araddr,
     input wire [7:0] m0_arlen,
@@ -34,9 +31,7 @@ module axi4_crossbar_read_path #(
     input wire m0_arvalid,
     output wire m0_arready,
 
-    // --------------------------------------------
     // Master 1 AR interface
-    // --------------------------------------------
     input wire [ID_WIDTH-1:0] m1_arid,
     input wire [ADDR_WIDTH-1:0] m1_araddr,
     input wire [7:0] m1_arlen,
@@ -50,9 +45,7 @@ module axi4_crossbar_read_path #(
     input wire m1_arvalid,
     output wire m1_arready,
 
-    // --------------------------------------------
     // Slave 0 AR interface
-    // --------------------------------------------
     output wire [ID_WIDTH-1:0] s0_arid,
     output wire [ADDR_WIDTH-1:0] s0_araddr,
     output wire [7:0] s0_arlen,
@@ -66,9 +59,7 @@ module axi4_crossbar_read_path #(
     output wire s0_arvalid,
     input wire s0_arready,
 
-    // --------------------------------------------
     // Slave 1 AR interface
-    // --------------------------------------------
     output wire [ID_WIDTH-1:0] s1_arid,
     output wire [ADDR_WIDTH-1:0] s1_araddr,
     output wire [7:0] s1_arlen,
@@ -82,9 +73,7 @@ module axi4_crossbar_read_path #(
     output wire s1_arvalid,
     input wire s1_arready,
 
-    // --------------------------------------------
     // Slave 0 R interface
-    // --------------------------------------------
     input wire [ID_WIDTH-1:0] s0_rid,
     input wire [DATA_WIDTH-1:0] s0_rdata,
     input wire [1:0] s0_rresp,
@@ -92,9 +81,7 @@ module axi4_crossbar_read_path #(
     input wire s0_rvalid,
     output wire s0_rready,
 
-    // --------------------------------------------
     // Slave 1 R interface
-    // --------------------------------------------
     input wire [ID_WIDTH-1:0] s1_rid,
     input wire [DATA_WIDTH-1:0] s1_rdata,
     input wire [1:0] s1_rresp,
@@ -102,9 +89,7 @@ module axi4_crossbar_read_path #(
     input wire s1_rvalid,
     output wire s1_rready,
 
-    // --------------------------------------------
     // Master 0 R interface
-    // --------------------------------------------
     output wire [ID_WIDTH-1:0] m0_rid,
     output wire [DATA_WIDTH-1:0] m0_rdata,
     output wire [1:0] m0_rresp,
@@ -112,9 +97,7 @@ module axi4_crossbar_read_path #(
     output wire m0_rvalid,
     input wire m0_rready,
 
-    // --------------------------------------------
     // Master 1 R interface
-    // --------------------------------------------
     output wire [ID_WIDTH-1:0] m1_rid,
     output wire [DATA_WIDTH-1:0] m1_rdata,
     output wire [1:0] m1_rresp,
@@ -122,10 +105,7 @@ module axi4_crossbar_read_path #(
     output wire m1_rvalid,
     input wire m1_rready,
 
-    // --------------------------------------------
     // Master transaction tracking interface
-    // Shared with the write path
-    // --------------------------------------------
     input wire m0_read_available,
     input wire m1_read_available,
 
@@ -135,34 +115,21 @@ module axi4_crossbar_read_path #(
     output wire m0_read_complete,
     output wire m1_read_complete,
 
-    // --------------------------------------------
-    // Burst-age arbitration service information
-    // --------------------------------------------
-    input wire s0_rd_service_valid,
-    input wire s0_rd_service_master,
+    // Read epoch-clear inputs
     input wire s0_rd_epoch_clear,
-
-    input wire s1_rd_service_valid,
-    input wire s1_rd_service_master,
     input wire s1_rd_epoch_clear,
 
-    // --------------------------------------------
     // Slave ownership status
-    // --------------------------------------------
     output wire s0_read_active,
     output wire s1_read_active,
 
-    // --------------------------------------------
     // Shared DECERR handler read address interface
-    // --------------------------------------------
     output wire [ID_WIDTH-1:0] decerr_arid,
     output wire [7:0] decerr_arlen,
     output wire decerr_arvalid,
     input wire decerr_arready,
 
-    // --------------------------------------------
     // Shared DECERR handler read response interface
-    // --------------------------------------------
     input wire [ID_WIDTH-1:0] decerr_rid,
     input wire [DATA_WIDTH-1:0] decerr_rdata,
     input wire [1:0] decerr_rresp,
@@ -175,7 +142,6 @@ module axi4_crossbar_read_path #(
     // INTERNAL SIGNAL DECLARATIONS
     // ============================================
 
-    // Address decoder outputs
     wire m0_s0_sel;
     wire m0_s1_sel;
     wire m0_decode_error;
@@ -222,6 +188,12 @@ module axi4_crossbar_read_path #(
     wire s0_ar_owner;
     wire s1_ar_owner;
 
+    // Internal read service feedback
+    wire s0_rd_service_valid_int;
+    wire s1_rd_service_valid_int;
+    wire s0_rd_service_master_int;
+    wire s1_rd_service_master_int;
+
     // DECERR read arbitration
     wire [1:0] decerr_rd_req;
     wire [1:0] decerr_rd_grant;
@@ -231,6 +203,11 @@ module axi4_crossbar_read_path #(
     // DECERR response ownership
     reg decerr_owner_valid;
     reg decerr_owner;
+
+    // A service event occurs only when an R beat
+    // is successfully accepted by the receiving master.
+    assign s0_rd_service_valid_int = s0_rvalid && s0_rready;
+    assign s1_rd_service_valid_int = s1_rvalid && s1_rready;
 
 
     // ============================================
@@ -260,9 +237,6 @@ module axi4_crossbar_read_path #(
     // NORMAL READ ARBITRATION REQUEST GENERATION
     // ============================================
 
-    // Request bit 0 = Master 0
-    // Request bit 1 = Master 1
-
     assign s0_rd_req[0] =
         m0_arvalid && m0_read_available && m0_s0_sel;
 
@@ -274,9 +248,6 @@ module axi4_crossbar_read_path #(
 
     assign s1_rd_req[1] =
         m1_arvalid && m1_read_available && m1_s1_sel;
-
-    // A slave can accept a new read address only
-    // when it has no active read transaction.
 
     assign s0_rd_enable = ~s0_read_active;
     assign s1_rd_enable = ~s1_read_active;
@@ -295,16 +266,16 @@ module axi4_crossbar_read_path #(
         .s0_rd_req(s0_rd_req),
         .s0_rd_enable(s0_rd_enable),
         .s0_rd_grant_accept(s0_rd_grant_accept),
-        .s0_rd_service_valid(s0_rd_service_valid),
-        .s0_rd_service_master(s0_rd_service_master),
+        .s0_rd_service_valid(s0_rd_service_valid_int),
+        .s0_rd_service_master(s0_rd_service_master_int),
         .s0_rd_epoch_clear(s0_rd_epoch_clear),
         .s0_rd_grant(s0_rd_grant),
 
         .s1_rd_req(s1_rd_req),
         .s1_rd_enable(s1_rd_enable),
         .s1_rd_grant_accept(s1_rd_grant_accept),
-        .s1_rd_service_valid(s1_rd_service_valid),
-        .s1_rd_service_master(s1_rd_service_master),
+        .s1_rd_service_valid(s1_rd_service_valid_int),
+        .s1_rd_service_master(s1_rd_service_master_int),
         .s1_rd_epoch_clear(s1_rd_epoch_clear),
         .s1_rd_grant(s1_rd_grant)
     );
@@ -320,7 +291,6 @@ module axi4_crossbar_read_path #(
     assign decerr_rd_req[1] =
         m1_arvalid && m1_read_available && m1_decode_error;
 
-    // Only one DECERR read may be outstanding.
     assign decerr_rd_enable = !decerr_owner_valid;
 
     arbitration_policy_unit_locked U_DECERR_READ_ARBITER (
@@ -334,17 +304,12 @@ module axi4_crossbar_read_path #(
 
         .grant_accept(decerr_rd_grant_accept),
 
-        // DECERR requests do not update memory-burst
-        // age-based service history.
         .service_valid(1'b0),
         .service_master(1'b0),
         .epoch_clear(1'b0),
 
         .grant(decerr_rd_grant)
     );
-
-    // Send the selected master's ID and burst length
-    // to the shared DECERR handler.
 
     assign decerr_arvalid = |decerr_rd_grant;
 
@@ -357,9 +322,6 @@ module axi4_crossbar_read_path #(
         decerr_rd_grant[0] ? m0_arlen :
         decerr_rd_grant[1] ? m1_arlen :
         8'd0;
-
-    // The handler accepts the request when both
-    // VALID and READY are asserted.
 
     assign decerr_rd_grant_accept =
         decerr_arvalid && decerr_arready;
@@ -378,15 +340,11 @@ module axi4_crossbar_read_path #(
 
         else begin
 
-            // Capture the selected master when the
-            // DECERR handler accepts its AR request.
             if (decerr_rd_grant_accept) begin
                 decerr_owner_valid <= 1'b1;
                 decerr_owner       <= decerr_rd_grant[1];
             end
 
-            // Release ownership after the final
-            // DECERR response beat is accepted.
             else if (
                 decerr_owner_valid &&
                 decerr_rvalid &&
@@ -413,7 +371,6 @@ module axi4_crossbar_read_path #(
         .aclk(aclk),
         .aresetn(aresetn),
 
-        // Master 0 AR
         .m0_arid(m0_arid),
         .m0_araddr(m0_araddr),
         .m0_arlen(m0_arlen),
@@ -427,7 +384,6 @@ module axi4_crossbar_read_path #(
         .m0_arvalid(m0_arvalid),
         .m0_arready(mapped_m0_arready),
 
-        // Master 1 AR
         .m1_arid(m1_arid),
         .m1_araddr(m1_araddr),
         .m1_arlen(m1_arlen),
@@ -441,7 +397,6 @@ module axi4_crossbar_read_path #(
         .m1_arvalid(m1_arvalid),
         .m1_arready(mapped_m1_arready),
 
-        // Slave 0 AR
         .s0_arid(s0_arid),
         .s0_araddr(s0_araddr),
         .s0_arlen(s0_arlen),
@@ -455,7 +410,6 @@ module axi4_crossbar_read_path #(
         .s0_arvalid(s0_arvalid),
         .s0_arready(s0_arready),
 
-        // Slave 1 AR
         .s1_arid(s1_arid),
         .s1_araddr(s1_araddr),
         .s1_arlen(s1_arlen),
@@ -469,11 +423,9 @@ module axi4_crossbar_read_path #(
         .s1_arvalid(s1_arvalid),
         .s1_arready(s1_arready),
 
-        // Master availability
         .m0_read_available(m0_read_available),
         .m1_read_available(m1_read_available),
 
-        // Arbitration connections
         .s0_rd_req(),
         .s0_rd_grant(s0_rd_grant),
         .s0_rd_enable(s0_rd_enable),
@@ -485,8 +437,6 @@ module axi4_crossbar_read_path #(
         .s0_rd_grant_accept(s0_rd_grant_accept),
         .s1_rd_grant_accept(s1_rd_grant_accept),
 
-        // Unmapped indicators are handled separately
-        // by the DECERR arbitration logic.
         .m0_ar_unmapped(),
         .m1_ar_unmapped()
     );
@@ -495,9 +445,6 @@ module axi4_crossbar_read_path #(
     // ============================================
     // MASTER ARREADY MULTIPLEXER
     // ============================================
-
-    // Mapped requests use the normal AR router.
-    // Unmapped requests use the DECERR handler.
 
     assign m0_arready =
         m0_decode_error
@@ -514,12 +461,9 @@ module axi4_crossbar_read_path #(
     // READ RESPONSE OWNERSHIP AND ROUTING
     // ============================================
 
-    // Accepted slave AR transactions
     assign s0_ar_accept = s0_arvalid && s0_arready;
     assign s1_ar_accept = s1_arvalid && s1_arready;
 
-    // Grant bit 0 = Master 0
-    // Grant bit 1 = Master 1
     assign s0_ar_owner = s0_rd_grant[1];
     assign s1_ar_owner = s1_rd_grant[1];
 
@@ -536,14 +480,12 @@ module axi4_crossbar_read_path #(
         .aclk(aclk),
         .aresetn(aresetn),
 
-        // Accepted AR transactions
         .s0_ar_accept(s0_ar_accept),
         .s0_ar_owner(s0_ar_owner),
 
         .s1_ar_accept(s1_ar_accept),
         .s1_ar_owner(s1_ar_owner),
 
-        // Slave 0 R
         .s0_rid(s0_rid),
         .s0_rdata(s0_rdata),
         .s0_rresp(s0_rresp),
@@ -551,7 +493,6 @@ module axi4_crossbar_read_path #(
         .s0_rvalid(s0_rvalid),
         .s0_rready(s0_rready),
 
-        // Slave 1 R
         .s1_rid(s1_rid),
         .s1_rdata(s1_rdata),
         .s1_rresp(s1_rresp),
@@ -559,7 +500,6 @@ module axi4_crossbar_read_path #(
         .s1_rvalid(s1_rvalid),
         .s1_rready(s1_rready),
 
-        // Master 0 normal R response
         .m0_rid(normal_m0_rid),
         .m0_rdata(normal_m0_rdata),
         .m0_rresp(normal_m0_rresp),
@@ -567,7 +507,6 @@ module axi4_crossbar_read_path #(
         .m0_rvalid(normal_m0_rvalid),
         .m0_rready(normal_m0_rready),
 
-        // Master 1 normal R response
         .m1_rid(normal_m1_rid),
         .m1_rdata(normal_m1_rdata),
         .m1_rresp(normal_m1_rresp),
@@ -575,22 +514,18 @@ module axi4_crossbar_read_path #(
         .m1_rvalid(normal_m1_rvalid),
         .m1_rready(normal_m1_rready),
 
-        // Slave ownership status
         .s0_owner_valid(s0_read_active),
         .s1_owner_valid(s1_read_active),
 
-        .s0_owner(),
-        .s1_owner()
+        // Owner outputs drive the service-history inputs.
+        .s0_owner(s0_rd_service_master_int),
+        .s1_owner(s1_rd_service_master_int)
     );
 
 
     // ============================================
     // NORMAL / DECERR READ RESPONSE MULTIPLEXER
     // ============================================
-
-    // --------------------------------------------
-    // Master 0 response
-    // --------------------------------------------
 
     assign m0_rid =
         (decerr_owner_valid && !decerr_owner)
@@ -613,10 +548,6 @@ module axi4_crossbar_read_path #(
         ? decerr_rvalid : normal_m0_rvalid;
 
 
-    // --------------------------------------------
-    // Master 1 response
-    // --------------------------------------------
-
     assign m1_rid =
         (decerr_owner_valid && decerr_owner)
         ? decerr_rid : normal_m1_rid;
@@ -638,21 +569,12 @@ module axi4_crossbar_read_path #(
         ? decerr_rvalid : normal_m1_rvalid;
 
 
-    // --------------------------------------------
     // READY routing
-    // --------------------------------------------
-
-    // Suppress normal response READY for the master
-    // currently receiving a DECERR response.
-
     assign normal_m0_rready =
         m0_rready && !(decerr_owner_valid && !decerr_owner);
 
     assign normal_m1_rready =
         m1_rready && !(decerr_owner_valid && decerr_owner);
-
-    // Route the selected master's READY to the
-    // shared DECERR handler.
 
     assign decerr_rready =
         decerr_owner_valid &&
@@ -663,14 +585,8 @@ module axi4_crossbar_read_path #(
     // MASTER READ TRANSACTION TRACKING EVENTS
     // ============================================
 
-    // A read transaction starts when the master
-    // ARVALID and ARREADY handshake occurs.
-
     assign m0_ar_accept = m0_arvalid && m0_arready;
     assign m1_ar_accept = m1_arvalid && m1_arready;
-
-    // A read transaction completes when the master
-    // accepts the final R response beat.
 
     assign m0_read_complete =
         m0_rvalid && m0_rready && m0_rlast;

@@ -1,4 +1,3 @@
-
 `timescale 1ns / 1ps
 
 module axi4_crossbar_write_path #(
@@ -12,13 +11,11 @@ module axi4_crossbar_write_path #(
     // Arbitration policy
     input wire [1:0] arb_policy,
 
-    // Master write availability from shared master_tracker
+    // Master write availability
     input wire m0_write_available,
     input wire m1_write_available,
 
-    // ------------------------------------------------
     // Master 0 AW interface
-    // ------------------------------------------------
     input wire [ID_WIDTH-1:0] m0_awid,
     input wire [ADDR_WIDTH-1:0] m0_awaddr,
     input wire [7:0] m0_awlen,
@@ -32,9 +29,7 @@ module axi4_crossbar_write_path #(
     input wire m0_awvalid,
     output wire m0_awready,
 
-    // ------------------------------------------------
     // Master 1 AW interface
-    // ------------------------------------------------
     input wire [ID_WIDTH-1:0] m1_awid,
     input wire [ADDR_WIDTH-1:0] m1_awaddr,
     input wire [7:0] m1_awlen,
@@ -48,45 +43,35 @@ module axi4_crossbar_write_path #(
     input wire m1_awvalid,
     output wire m1_awready,
 
-    // ------------------------------------------------
     // Master 0 W interface
-    // ------------------------------------------------
     input wire [DATA_WIDTH-1:0] m0_wdata,
     input wire [(DATA_WIDTH/8)-1:0] m0_wstrb,
     input wire m0_wlast,
     input wire m0_wvalid,
     output wire m0_wready,
 
-    // ------------------------------------------------
     // Master 1 W interface
-    // ------------------------------------------------
     input wire [DATA_WIDTH-1:0] m1_wdata,
     input wire [(DATA_WIDTH/8)-1:0] m1_wstrb,
     input wire m1_wlast,
     input wire m1_wvalid,
     output wire m1_wready,
 
-    // ------------------------------------------------
     // Slave 0 W interface
-    // ------------------------------------------------
     output wire [DATA_WIDTH-1:0] s0_wdata,
     output wire [(DATA_WIDTH/8)-1:0] s0_wstrb,
     output wire s0_wlast,
     output wire s0_wvalid,
     input wire s0_wready,
 
-    // ------------------------------------------------
     // Slave 1 W interface
-    // ------------------------------------------------
     output wire [DATA_WIDTH-1:0] s1_wdata,
     output wire [(DATA_WIDTH/8)-1:0] s1_wstrb,
     output wire s1_wlast,
     output wire s1_wvalid,
     input wire s1_wready,
 
-    // ------------------------------------------------
     // Slave 0 AW interface
-    // ------------------------------------------------
     output wire [ID_WIDTH-1:0] s0_awid,
     output wire [ADDR_WIDTH-1:0] s0_awaddr,
     output wire [7:0] s0_awlen,
@@ -100,9 +85,7 @@ module axi4_crossbar_write_path #(
     output wire s0_awvalid,
     input wire s0_awready,
 
-    // ------------------------------------------------
     // Slave 1 AW interface
-    // ------------------------------------------------
     output wire [ID_WIDTH-1:0] s1_awid,
     output wire [ADDR_WIDTH-1:0] s1_awaddr,
     output wire [7:0] s1_awlen,
@@ -116,70 +99,49 @@ module axi4_crossbar_write_path #(
     output wire s1_awvalid,
     input wire s1_awready,
 
-    // ------------------------------------------------
     // Master 0 B interface
-    // ------------------------------------------------
     output wire [ID_WIDTH-1:0] m0_bid,
     output wire [1:0] m0_bresp,
     output wire m0_bvalid,
     input wire m0_bready,
 
-    // ------------------------------------------------
     // Master 1 B interface
-    // ------------------------------------------------
     output wire [ID_WIDTH-1:0] m1_bid,
     output wire [1:0] m1_bresp,
     output wire m1_bvalid,
     input wire m1_bready,
 
-    // ------------------------------------------------
     // Slave 0 B interface
-    // ------------------------------------------------
     input wire [ID_WIDTH-1:0] s0_bid,
     input wire [1:0] s0_bresp,
     input wire s0_bvalid,
     output wire s0_bready,
 
-    // ------------------------------------------------
     // Slave 1 B interface
-    // ------------------------------------------------
     input wire [ID_WIDTH-1:0] s1_bid,
     input wire [1:0] s1_bresp,
     input wire s1_bvalid,
     output wire s1_bready,
 
-    // ------------------------------------------------
-    // Burst-aware age arbitration service inputs
-    // ------------------------------------------------
-    input wire s0_wr_service_valid,
-    input wire s0_wr_service_master,
+    // Write epoch-clear inputs
     input wire s0_wr_epoch_clear,
-
-    input wire s1_wr_service_valid,
-    input wire s1_wr_service_master,
     input wire s1_wr_epoch_clear,
 
-    // ------------------------------------------------
     // Master tracker event outputs
-    // ------------------------------------------------
     output wire m0_aw_accept,
     output wire m1_aw_accept,
 
     output wire m0_write_complete,
     output wire m1_write_complete,
 
-    // ------------------------------------------------
     // Status outputs
-    // ------------------------------------------------
     output wire s0_write_slot_available,
     output wire s1_write_slot_available,
 
     output wire m0_aw_unmapped,
     output wire m1_aw_unmapped,
 
-    // ------------------------------------------------
     // DECERR WRITE HANDLER INTERFACE
-    // ------------------------------------------------
     output wire [ID_WIDTH-1:0] decerr_awid,
     output wire [7:0] decerr_awlen,
     output wire decerr_awvalid,
@@ -216,6 +178,12 @@ module axi4_crossbar_write_path #(
     wire s0_wr_enable;
     wire s1_wr_enable;
 
+    // Internal write service feedback
+    wire s0_wr_service_valid_int;
+    wire s1_wr_service_valid_int;
+    wire s0_wr_service_master_int;
+    wire s1_wr_service_master_int;
+
     // =================================================
     // DECERR INTERNAL SIGNALS
     // =================================================
@@ -245,6 +213,14 @@ module axi4_crossbar_write_path #(
 
     reg decerr_wr_owner_valid;
     reg decerr_wr_owner;
+
+    // =================================================
+    // WRITE SERVICE FEEDBACK GENERATION
+    // =================================================
+
+    // Count only successfully accepted W-data beats.
+    assign s0_wr_service_valid_int = s0_wvalid && s0_wready;
+    assign s1_wr_service_valid_int = s1_wvalid && s1_wready;
 
     // =================================================
     // SLAVE WRITE-SLOT AVAILABILITY
@@ -278,8 +254,8 @@ module axi4_crossbar_write_path #(
         .s0_wr_enable(s0_wr_enable),
         .s0_wr_grant_accept(s0_wr_grant_accept),
 
-        .s0_wr_service_valid(s0_wr_service_valid),
-        .s0_wr_service_master(s0_wr_service_master),
+        .s0_wr_service_valid(s0_wr_service_valid_int),
+        .s0_wr_service_master(s0_wr_service_master_int),
         .s0_wr_epoch_clear(s0_wr_epoch_clear),
 
         .s0_wr_grant(s0_wr_grant),
@@ -288,8 +264,8 @@ module axi4_crossbar_write_path #(
         .s1_wr_enable(s1_wr_enable),
         .s1_wr_grant_accept(s1_wr_grant_accept),
 
-        .s1_wr_service_valid(s1_wr_service_valid),
-        .s1_wr_service_master(s1_wr_service_master),
+        .s1_wr_service_valid(s1_wr_service_valid_int),
+        .s1_wr_service_master(s1_wr_service_master_int),
         .s1_wr_epoch_clear(s1_wr_epoch_clear),
 
         .s1_wr_grant(s1_wr_grant)
@@ -398,9 +374,6 @@ module axi4_crossbar_write_path #(
     assign decerr_wr_req[1] =
         m1_aw_unmapped && m1_write_available;
 
-    // Do not depend on READY to assert VALID.
-    // The locked arbiter holds the selected grant
-    // until the handler accepts the AW transaction.
     assign decerr_wr_enable = !decerr_wr_owner_valid;
 
     arbitration_policy_unit_locked U_DECERR_WRITE_ARBITER (
@@ -415,8 +388,6 @@ module axi4_crossbar_write_path #(
 
         .grant_accept(decerr_wr_grant_accept),
 
-        // DECERR requests do not update normal
-        // memory-burst age service history.
         .service_valid(1'b0),
         .service_master(1'b0),
         .epoch_clear(1'b0),
@@ -610,7 +581,11 @@ module axi4_crossbar_write_path #(
         .s0_aw_owner(s0_aw_owner),
 
         .s1_aw_accept(s1_wr_grant_accept),
-        .s1_aw_owner(s1_aw_owner)
+        .s1_aw_owner(s1_aw_owner),
+
+        // Expose current write owners
+        .s0_write_owner_out(s0_wr_service_master_int),
+        .s1_write_owner_out(s1_wr_service_master_int)
     );
 
     // =================================================

@@ -1,4 +1,3 @@
-
 `timescale 1ns / 1ps
 
 module axi4_crossbar_w_router #(
@@ -39,7 +38,11 @@ module axi4_crossbar_w_router #(
     input wire s0_aw_accept,
     input wire s0_aw_owner,
     input wire s1_aw_accept,
-    input wire s1_aw_owner
+    input wire s1_aw_owner,
+
+    // Current write owner outputs
+    output wire s0_write_owner_out,
+    output wire s1_write_owner_out
 );
 
     // Ownership registers
@@ -48,6 +51,10 @@ module axi4_crossbar_w_router #(
 
     reg s1_write_active;
     reg s1_write_owner;
+
+    // Expose the current write owners
+    assign s0_write_owner_out = s0_write_owner;
+    assign s1_write_owner_out = s1_write_owner;
 
     // Slave 0 routing
     assign s0_wdata =
